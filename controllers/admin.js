@@ -15,15 +15,16 @@ exports.postAddProduct = (req, res, next) => {
     description,
     price
   } = req.body;
-  console.log(res.user)
-//Adding relation with User and Save to Db:
-  req.user.createProduct({
+  const product = new Product(
     title,
     price,
-    imageUrl,
     description,
-    userId: req.user.id,
-  })
+    imageUrl,
+    null,
+    req.user._id
+    )
+  product
+    .save()
     .then(result => {
       console.log(result);
       res.redirect('/admin/products');
@@ -38,11 +39,10 @@ exports.getEditProduct = (req, res, next) => {
   if (!editMode) {
     res.redirect('/');
   }
-  req.user
-    .getProducts({ where: { id: prodId } })
-    .then((products) => {
-      const product = products[0];
 
+  Product
+    .findById(prodId)
+    .then(product => {
       if (!product) {
         res.redirect('/');
       }
@@ -66,16 +66,9 @@ exports.postEditProduct = (req, res, next) => {
     price,
   } = req.body;
 
-  Product
-    .findByPk(productId)
-    .then(product => {
-      product.title = title;
-      product.imageUrl = imageUrl;
-      product.description = description;
-      product.price = price;
-      //First Saving to the database:
-      return product.save();
-    })
+  const product = new Product(title, price, description, imageUrl, productId);
+
+  product.save()
     .then(() => {
       //Then redirect:
       res.redirect('/admin/products');
@@ -88,10 +81,7 @@ exports.postDeleteProduct = (req, res, next) => {
 
   //Delete product in DB:
   Product
-    .findByPk(productId)
-    .then(product => {
-      return product.destroy();
-    })
+    .deleteById(productId)
     .then(() => {
       res.redirect('/admin/products');
     })
@@ -99,8 +89,8 @@ exports.postDeleteProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  req.user
-    .getProducts()
+  Product
+    .fetchAll()
     .then(products => {
       res.render('admin/products', {
         prods: products,
