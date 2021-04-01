@@ -9,7 +9,6 @@ exports.getProducts = (req, res, next) => {
         prods: products,
         pageTitle: 'All Products',
         path: '/products',
-        isAuthenticated: req.session.isLoggedIn,
       });
     })
     .catch(err => console.log(err));
@@ -23,7 +22,6 @@ exports.getIndex = (req, res, next)=> {
         prods: products,
         pageTitle: 'Shop',
         path: '/',
-        isAuthenticated: req.session.isLoggedIn,
       });
     })
     .catch(err => {
@@ -41,7 +39,6 @@ exports.getProduct = (req, res, next) => {
         pageTitle: 'Product Details',
         path: '/products',
         product: product,
-        isAuthenticated: req.session.isLoggedIn,
       });
     })
     .catch(err => console.log(err));
@@ -58,7 +55,6 @@ exports.getCart = (req, res, next) => {
         pageTitle: 'Cart',
         path: '/cart',
         products: products,
-        isAuthenticated: req.session.isLoggedIn,
       });
     })
     .catch(err => console.log(err));
@@ -98,7 +94,7 @@ exports.postOrder = (req, res, next) => {
       const products = user.cart.items.map(i => ({quantity: i.quantity, product: {...i.productId._doc}}));
       const order = new Order({
         user: {
-          name: req.user.name,
+          email: req.user.email,
           userId: req.user,
         },
         products: products
@@ -123,7 +119,6 @@ exports.getOrders = (req, res, next) => {
         pageTitle: 'Orders',
         path: '/orders',
         orders: orders,
-        isAuthenticated: req.session.isLoggedIn,
       });
     })
     .catch(err => console.log(err));
